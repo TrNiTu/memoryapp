@@ -1,10 +1,12 @@
 import "./App.css";
-import { addNewUser, addNewVerse, } from "../src/firebase/firebase";
-import StickyTitleDropdown from "../src/components/dropdown";
-import { useEffect, useState } from "react";
-import jwt_decode from "jwt-decode";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
+import { addNewUser, addNewVerse, } from "../src/firebase/firebase";
+import { useEffect, useState, } from "react";
+import { readCsv, } from "../src/readCsv";
+
+import StickyTitleDropdown from "../src/components/dropdown";
+import jwt_decode from "jwt-decode";
 
 function App() {
   const [user, setUser] = useState({}); // probably need to introduce redux for a more global state for this fullstack application.
@@ -38,6 +40,7 @@ function App() {
     );
   }, []);
 
+  readCsv("../src/assets/books.csv");
   let elementArray = ["Book", "Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy"];
   return (
     <div className="App">

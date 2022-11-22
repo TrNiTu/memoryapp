@@ -1,13 +1,25 @@
 import "./App.css";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-import { addNewUser, addNewVerse, } from "../src/firebase/firebase";
+import { addNewUser, addNewVerse, getVersesCollection, } from "../src/firebase/firebase";
 import { useEffect, useState, } from "react";
-import { readCsv, } from "../src/readCsv";
+import { readCsv } from "./components/bible/readCsv";
 
-import StickyTitleDropdown from "../src/components/dropdown";
+import StickyTitleDropdown from "../src/components/dropdown/dropdown";
 import jwt_decode from "jwt-decode";
 
+import Papa from "papaparse";
+
+const BIBLE_BOOKS = ["Book", "Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy",
+  "Joshua", "Judges", "Ruth", "1 Samuel", "2 Samuel", "1 Kings", "2 Kings",
+  "1 Chronicles", "2 Chronicles", "Ezra", "Nehemiah", "Esther", "Job", "Psalms",
+  "Proverbs", "Ecclesiastes", "Song of Songs", "Isaiah", "Jeremiah", "Lamentations",
+  "Ezekiel", "Daniel", "Hosea", "Joel", "Amos", "Obadiah", "Jonah", "Micah", "Nahum",
+  "Habakkuk", "Zephaniah", "Haggai", "Zechariah", "Malachi", "Matthew", "Mark", "Luke", "John", "Acts",
+  "Romans", "1 Corinthians", "2 Corinthians", "Galatians", "Ephesians", "Philippians",
+  "Colossians", "1 Thessalonians", "2 Thessalonians", "1 Timothy", "2 Timothy", "Titus",
+  "Philemon", "Hebrews", "James", "1 Peter", "2 Peter", "1 John", "2 John", "3 John",
+  "Jude", "Revelation"];
 function App() {
   const [user, setUser] = useState({}); // probably need to introduce redux for a more global state for this fullstack application.
 
@@ -18,7 +30,8 @@ function App() {
 
     // test if email is already in use, then add user if not
     addNewUser(userObject.given_name, userObject.email);
-    // addNewVerse(userObject.email, "John", 3, false, "For God so loved the world, that he gave his only Son, that whoever believes in him should not perish but have eternal life.", 16, 16, 0);
+    // addNewVerse(userObject.email, "Exodus", 3, false, "And I will give this people favor in the sight of the Egyptians; and when you go, you shall not go empty,", 21, 21, 0);
+    getVersesCollection(userObject.email);
   }
 
   function handleSignOut(event) {
@@ -40,8 +53,12 @@ function App() {
     );
   }, []);
 
-  readCsv("../src/assets/books.csv");
-  let elementArray = ["Book", "Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy"];
+  function renderDropdown() {
+    if (user.email !== undefined) {
+      return <StickyTitleDropdown value={BIBLE_BOOKS} />
+    }
+  }
+  readCsv("../src/components/bible/bible.csv");
   return (
     <div className="App">
       <div id="signInDiv"></div>
@@ -56,8 +73,8 @@ function App() {
           <img referrerPolicy="no-referrer" src={user.picture}></img>
           <h3>{user.name}</h3>
         </div>}
-      <StickyTitleDropdown
-        value={elementArray} />
+
+      {renderDropdown()}
     </div>
   );
 }

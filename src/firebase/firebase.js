@@ -1,6 +1,6 @@
 import "../App";
 import { initializeApp } from "firebase/app";
-import { addDoc, collection, doc, getDoc, getFirestore, setDoc, } from "firebase/firestore";
+import { addDoc, collection, doc, getDoc, getDocs, getFirestore, setDoc, } from "firebase/firestore";
 
 const firebaseConfig = {
     apiKey: "AIzaSyC496RknhFuIn6A8BH_xuE91spAhFXORXY",
@@ -69,4 +69,12 @@ export async function addNewVerse(userEmail, book, chapter, checkedOff, scriptur
     } catch (error) {
         console.log("Error while adding new verse: ", error);
     }
+}
+
+export async function getVersesCollection(userEmail) {
+    let pathRef = "users/" + userEmail + "/verses";
+    let querySnapshot = await getDocs(collection(db, pathRef));
+    querySnapshot.forEach((doc) => {
+        console.log(doc.data().scripture);
+    });
 }

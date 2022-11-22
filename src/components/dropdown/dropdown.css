@@ -1,0 +1,9 @@
+.dropdown {
+    text-align: center;
+}
+
+.dropdown-menu {
+    text-align: center !important;
+    max-height: 14rem;
+    overflow-y: scroll;
+}

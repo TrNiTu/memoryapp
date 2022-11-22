@@ -21,6 +21,8 @@ const BIBLE_BOOKS = ["Book", "Genesis", "Exodus", "Leviticus", "Numbers", "Deute
   "Jude", "Revelation"];
 function App() {
   const [user, setUser] = useState({}); // probably need to introduce redux for a more global state for this fullstack application.
+  const [bibleArray, setBibleArray] = useState({}); // this is to store the whole bible in an array
+  const [counter, setCounter] = useState({});
 
   function handleCallbackResponse(response) {
     var userObject = jwt_decode(response.credential);
@@ -50,7 +52,14 @@ function App() {
       document.getElementById("signInDiv"),
       { theme: "outline", size: "large" }
     );
+
+    setBibleArray(readCsv(updateBibleArray));
+    console.log(bibleArray);
   }, []);
+
+  function updateBibleArray(array) {
+    setBibleArray(array);
+  }
 
   function renderDropdown() {
     if (user.email !== undefined) {
@@ -58,9 +67,6 @@ function App() {
     }
   }
 
-
-  readCsv();
-  // console.log(csv);
   return (
     <div className="App">
       <div id="signInDiv"></div>

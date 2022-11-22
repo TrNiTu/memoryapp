@@ -1,6 +1,5 @@
 import "./App.css";
 import 'bootstrap/dist/css/bootstrap.min.css';
-
 import { addNewUser, addNewVerse, getVersesCollection, } from "../src/firebase/firebase";
 import { useEffect, useState, } from "react";
 import { readCsv } from "./components/bible/readCsv";
@@ -58,7 +57,10 @@ function App() {
       return <StickyTitleDropdown value={BIBLE_BOOKS} />
     }
   }
-  readCsv("../src/components/bible/bible.csv");
+
+
+  readCsv();
+  // console.log(csv);
   return (
     <div className="App">
       <div id="signInDiv"></div>

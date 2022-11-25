@@ -2,9 +2,9 @@ import "./App.css";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { addNewUser, addNewVerse, getVersesCollection, } from "../src/firebase/firebase";
 import { useEffect, useState, } from "react";
-import { readCsv } from "./components/bible/readCsv";
+import { getChapters, readCsv } from "./components/bible/readCsv";
 
-import StickyTitleDropdown from "../src/components/dropdown/dropdown";
+import StickyTitleDropdown from "./components/dropdown/dropdown";
 import jwt_decode from "jwt-decode";
 
 import Papa from "papaparse";
@@ -23,18 +23,20 @@ function App() {
   const [user, setUser] = useState({}); // probably need to introduce redux for a more global state for this fullstack application.
   const [bibleArray, setBibleArray] = useState({}); // this is to store the whole bible in an array
   const [counter, setCounter] = useState({});
+  const [selectedBook, setSelectedBook] = useState(0);
+  const [selectedChapter, setSelectedChapter] = useState(0);
 
   function handleCallbackResponse(response) {
     var userObject = jwt_decode(response.credential);
     setUser(userObject);
     document.getElementById("signInDiv").hidden = true;
 
-    // test if email is already in use, then add user if not
     addNewUser(userObject.given_name, userObject.email);
     // addNewVerse(userObject.email, "Exodus", 3, false, "And I will give this people favor in the sight of the Egyptians; and when you go, you shall not go empty,", 21, 21, 0);
     getVersesCollection(userObject.email);
   }
 
+  // this function handles when the user signs out of their account
   function handleSignOut(event) {
     setUser({});
     document.getElementById("signInDiv").hidden = false;
@@ -53,17 +55,48 @@ function App() {
       { theme: "outline", size: "large" }
     );
 
-    setBibleArray(readCsv(updateBibleArray));
-    console.log(bibleArray);
+    // setBibleArray(readCsv(updateBibleArray));
+    // console.log(bibleArray);
   }, []);
-
   function updateBibleArray(array) {
     setBibleArray(array);
   }
 
-  function renderDropdown() {
+  // this sets the state of what book was selected
+  // from the child component to the parent component
+  function handleSelectedBook(selectedBook) {
+    setSelectedBook(selectedBook);
+  }
+
+  function handleSelectedChapter(selectedChapter) {
+    setSelectedChapter(selectedChapter);
+  }
+
+  // console.log(selectedBook);
+
+  // this function renders the bible book name dropdown
+  function renderBookOptionsDropdown() {
     if (user.email !== undefined) {
-      return <StickyTitleDropdown value={BIBLE_BOOKS} />
+      return <StickyTitleDropdown onSelect={handleSelectedBook} input={BIBLE_BOOKS} />
+    }
+  }
+
+  // this function renders the a dropdown list of chapters after
+  // the user has selected a book
+  function renderChapterOptionsDropdown() {
+    if (user.email !== undefined && selectedBook !== 0) {
+      let numberOfChapters = getChapters(selectedBook);
+      return <StickyTitleDropdown onSelect={handleSelectedChapter} typeOfInput={"number"} input={["Chapter", 50]} />
+    }
+  }
+
+  function renderVerseOptionsDropdown() {
+
+  }
+
+  function showSelectedBook() {
+    if(selectedBook !== 0) {
+      return <div style={{color: "white"}}>{selectedBook.toString()}</div>
     }
   }
 
@@ -82,7 +115,9 @@ function App() {
           <h3>{user.name}</h3>
         </div>}
 
-      {renderDropdown()}
+      {renderBookOptionsDropdown()}
+      {renderChapterOptionsDropdown()}
+      {showSelectedBook()}
     </div>
   );
 }

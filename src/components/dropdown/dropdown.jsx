@@ -5,33 +5,45 @@ import "./dropdown.css"
 // this function creates a dropdown menu of all the elements in the input's array
 // input should be an array of strings or numbers (i.e. books, chapters, or verses)
 // the first element will be the type of dropdown
-function StickyTitleDropdown(elementArray) {
-
-    const [title, setTitle] = useState(elementArray.value[0]);
-
-    // need to implement useEffect to do ON-STATE update effect
-    useEffect(() => {
-        // console.log(title);
-    }, )
-
-
+function StickyTitleDropdown({ input, onSelect, typeOfInput }) {
+    const [title, setTitle] = useState(input[0]);
     // need to somehow make the clicked element "active"
     let dropDownOptions = [];
-    for (let i = 1; i < elementArray.value.length; i++) {
-        dropDownOptions.push(
-            <Dropdown.Item
-                key={elementArray.value[i]}
-                onClick={() => setTitle(elementArray.value[i])}
-                eventKey={elementArray.value[i]}>
-                {elementArray.value[i]}
-            </Dropdown.Item>
-        )
+    if (typeOfInput !== "number") {
+        for (let i = 1; i < input.length; i++) {
+            dropDownOptions.push(
+                <Dropdown.Item
+                    key={input[i]}
+                    onClick={() => {
+                        setTitle(input[i])
+                        onSelect(input[i])
+                    }}
+                    eventKey={input[i]}>
+                    {input[i]}
+                </Dropdown.Item>
+            )
+        }
+    } else if (typeOfInput === "number") {
+        for (let i = 0; i < input[1]; i++) {
+            dropDownOptions.push(
+                <Dropdown.Item
+                    key={i + 1}
+                    onClick={() => {
+                        setTitle(i + 1)
+                        onSelect(i + 1)
+                    }}
+                    eventKey={i + 1}>
+                    {i + 1}
+                </Dropdown.Item>
+            )
+        }
+
     }
 
     return (
         <Dropdown>
             <Dropdown.Toggle
-                title={elementArray[0]}
+                title={title}
                 variant="success"
                 id="dropdown-basic">
                 {title}

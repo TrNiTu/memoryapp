@@ -9,7 +9,7 @@ function StickyTitleDropdown({ input, onSelect, typeOfInput }) {
     const [title, setTitle] = useState(input[0]);
     // need to somehow make the clicked element "active"
     let dropDownOptions = [];
-    if (typeOfInput !== "number") {
+    if (typeOfInput === "string") {
         for (let i = 1; i < input.length; i++) {
             dropDownOptions.push(
                 <Dropdown.Item

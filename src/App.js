@@ -2,7 +2,7 @@ import "./App.css";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { addNewUser, addNewVerse, getVersesCollection, } from "../src/firebase/firebase";
 import { useEffect, useState, } from "react";
-import { getChapters, readCsv } from "./components/bible/readCsv";
+import { getNumberOfChapters, getNumberOfVerses, readCsv } from "./components/bible/bibleUtil.jsx";
 
 import StickyTitleDropdown from "./components/dropdown/dropdown";
 import jwt_decode from "jwt-decode";
@@ -25,6 +25,9 @@ function App() {
   const [counter, setCounter] = useState({});
   const [selectedBook, setSelectedBook] = useState(0);
   const [selectedChapter, setSelectedChapter] = useState(0);
+  const [selectedFromVerse, setSelectedFromVerse] = useState(0);
+  const [selectedToVerse, setSelectedToVerse] = useState(0);
+  const [currentPassage, setCurrentPassage] = useState(0);
 
   function handleCallbackResponse(response) {
     var userObject = jwt_decode(response.credential);
@@ -55,8 +58,6 @@ function App() {
       { theme: "outline", size: "large" }
     );
 
-    // setBibleArray(readCsv(updateBibleArray));
-    // console.log(bibleArray);
   }, []);
   function updateBibleArray(array) {
     setBibleArray(array);
@@ -64,20 +65,65 @@ function App() {
 
   // this sets the state of what book was selected
   // from the child component to the parent component
-  function handleSelectedBook(selectedBook) {
-    setSelectedBook(selectedBook);
+  function handleSelectedBook(itemSelected) {
+    setSelectedBook(itemSelected);
+    readCsv(updateBibleArray, itemSelected);
   }
 
-  function handleSelectedChapter(selectedChapter) {
-    setSelectedChapter(selectedChapter);
+  // when the selected book changes, update the currently stored
+  // bible array to whatever was selected
+  useEffect(() => {
+    if (typeof (selectedBook) === "string") {
+      readCsv(updateBibleArray, selectedBook);
+    }
+  }, [selectedBook])
+
+  // once the user has selected the verses, it means that they
+  // have also selected a chapter and a book, set the current
+  // passage to the book, chapter, and the verses
+  useEffect(() => {
+    if (selectedFromVerse !== 0 && selectedToVerse !== 0) {
+      console.log(selectedFromVerse)
+      // testing if verses are equal, if so we only need one verse
+      if(selectedFromVerse === selectedToVerse) {
+        setCurrentPassage(bibleArray[selectedChapter-1][selectedFromVerse])
+      // in the case that the two are not equal, meaning multiple verses are selected,
+      // need to use a string and append
+      } else {
+        let tempPassageArray = "";
+        console.log("test");
+        for (let i = selectedFromVerse; i < selectedToVerse; i++) {
+          tempPassageArray + bibleArray[selectedChapter-1][i-1] + " "; // extra space at the end allows for more clean formatting
+        }
+        
+        // used temporary string to set the state of the current passage for later usage
+        setCurrentPassage(tempPassageArray);
+      }
+    }
+  }, [selectedFromVerse, selectedToVerse]);
+
+  // this sets the state of what chapter was selected from
+  // the child component to the parent component
+  function handleSelectedChapter(itemSelected) {
+    setSelectedChapter(itemSelected);
   }
 
-  // console.log(selectedBook);
+  // this sets the state of what "From Verse" that the user selects
+  // and passes it from the child component to the parent component
+  function handleSelectedFromVerse(itemSelected) {
+    setSelectedFromVerse(itemSelected);
+  }
+
+  // this sets the state of what "From Verse" that the user selects
+  // and passes it from the child component to the parent component
+  function handleSelectedToVerse(itemSelected) {
+    setSelectedToVerse(itemSelected);
+  }
 
   // this function renders the bible book name dropdown
   function renderBookOptionsDropdown() {
     if (user.email !== undefined) {
-      return <StickyTitleDropdown onSelect={handleSelectedBook} input={BIBLE_BOOKS} />
+      return <StickyTitleDropdown onSelect={handleSelectedBook} typeOfInput={"string"} input={BIBLE_BOOKS} />
     }
   }
 
@@ -85,18 +131,29 @@ function App() {
   // the user has selected a book
   function renderChapterOptionsDropdown() {
     if (user.email !== undefined && selectedBook !== 0) {
-      let numberOfChapters = getChapters(selectedBook);
-      return <StickyTitleDropdown onSelect={handleSelectedChapter} typeOfInput={"number"} input={["Chapter", 50]} />
+      return <StickyTitleDropdown onSelect={handleSelectedChapter} typeOfInput={"number"} input={["Chapter", bibleArray.length]} />
     }
   }
 
-  function renderVerseOptionsDropdown() {
-
+  // this function renders two dropdown components of a "From verse"
+  // and "To Verse" that the user has selected
+  function renderVerseOptionsDropdown(typeOfVerse) {
+    if (user.email !== undefined && selectedBook !== 0 && selectedChapter !== 0) {
+      if (typeOfVerse === "To Verse") {
+        return <StickyTitleDropdown onSelect={handleSelectedToVerse} typeOfInput={"number"} input={[typeOfVerse, bibleArray[selectedChapter].length]} />
+      } else if (typeOfVerse === "From Verse") {
+        return <StickyTitleDropdown onSelect={handleSelectedFromVerse} typeOfInput={"number"} input={[typeOfVerse, bibleArray[selectedChapter].length]} />
+      }
+    }
   }
 
-  function showSelectedBook() {
-    if(selectedBook !== 0) {
-      return <div style={{color: "white"}}>{selectedBook.toString()}</div>
+  // this function renders the current passage based on the user's selection
+  // of Book, Chapter, and two verses, From Verse and To Verse
+  function renderCurrentPassage() {
+    if(currentPassage !== 0) {
+      return <div>
+        {selectedBook} {selectedChapter}:{selectedFromVerse === selectedToVerse ? {selectedFromVerse} : {selectedFromVerse}+":"+{selectedToVerse}}
+      </div>
     }
   }
 
@@ -117,7 +174,9 @@ function App() {
 
       {renderBookOptionsDropdown()}
       {renderChapterOptionsDropdown()}
-      {showSelectedBook()}
+      {renderVerseOptionsDropdown("From Verse")}
+      {renderVerseOptionsDropdown("To Verse")}
+      {renderCurrentPassage()}
     </div>
   );
 }

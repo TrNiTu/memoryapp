@@ -20,9 +20,8 @@ const BIBLE_BOOKS = ["Book", "Genesis", "Exodus", "Leviticus", "Numbers", "Deute
   "Philemon", "Hebrews", "James", "1 Peter", "2 Peter", "1 John", "2 John", "3 John",
   "Jude", "Revelation"];
 function App() {
-  const [user, setUser] = useState({}); // probably need to introduce redux for a more global state for this fullstack application.
+  const [user, setUser] = useState(0); // probably need to introduce redux for a more global state for this fullstack application.
   const [bibleArray, setBibleArray] = useState({}); // this is to store the whole bible in an array
-  const [counter, setCounter] = useState({});
   const [selectedBook, setSelectedBook] = useState(0);
   const [selectedChapter, setSelectedChapter] = useState(0);
   const [selectedFromVerse, setSelectedFromVerse] = useState(0);
@@ -59,6 +58,45 @@ function App() {
     );
 
   }, []);
+
+  // when the selected book changes, update the currently stored
+  // bible array to whatever was selected and also reset the
+  // current selected chapter, verses, and passage
+  useEffect(() => {
+    if (typeof (selectedBook) === "string") {
+      readCsv(updateBibleArray, selectedBook);
+      setSelectedChapter(0);
+      setSelectedFromVerse(0);
+      setSelectedToVerse(0);
+      setCurrentPassage(0);
+    }
+  }, [selectedBook])
+
+  // once the user has selected the verses, it means that they
+  // have also selected a chapter and a book, set the current
+  // passage to the book, chapter, and the verses
+  useEffect(() => {
+    if (selectedFromVerse !== 0 && selectedToVerse !== 0) {
+      // testing if verses are equal, if so we only need one verse
+      if (selectedFromVerse === selectedToVerse) {
+        let tempPassageArray = "" + bibleArray[selectedChapter - 1][selectedFromVerse - 1];
+        setCurrentPassage(tempPassageArray);
+
+        // in the case that the two are not equal, meaning multiple verses are selected,
+        // need to use a string and append
+      } else {
+        let tempPassageArray = "";
+        for (let i = selectedFromVerse; i < selectedToVerse + 1; i++) {
+          tempPassageArray += bibleArray[selectedChapter - 1][i - 1] + " "; // extra space at the end allows for more clean formatting
+        }
+
+        // used temporary string to set the state of the current passage for later usage
+        setCurrentPassage(tempPassageArray);
+      }
+    }
+  }, [selectedFromVerse, selectedToVerse]);
+
+  // this function updates the current bible array
   function updateBibleArray(array) {
     setBibleArray(array);
   }
@@ -69,38 +107,6 @@ function App() {
     setSelectedBook(itemSelected);
     readCsv(updateBibleArray, itemSelected);
   }
-
-  // when the selected book changes, update the currently stored
-  // bible array to whatever was selected
-  useEffect(() => {
-    if (typeof (selectedBook) === "string") {
-      readCsv(updateBibleArray, selectedBook);
-    }
-  }, [selectedBook])
-
-  // once the user has selected the verses, it means that they
-  // have also selected a chapter and a book, set the current
-  // passage to the book, chapter, and the verses
-  useEffect(() => {
-    if (selectedFromVerse !== 0 && selectedToVerse !== 0) {
-      console.log(selectedFromVerse)
-      // testing if verses are equal, if so we only need one verse
-      if(selectedFromVerse === selectedToVerse) {
-        setCurrentPassage(bibleArray[selectedChapter-1][selectedFromVerse])
-      // in the case that the two are not equal, meaning multiple verses are selected,
-      // need to use a string and append
-      } else {
-        let tempPassageArray = "";
-        console.log("test");
-        for (let i = selectedFromVerse; i < selectedToVerse; i++) {
-          tempPassageArray + bibleArray[selectedChapter-1][i-1] + " "; // extra space at the end allows for more clean formatting
-        }
-        
-        // used temporary string to set the state of the current passage for later usage
-        setCurrentPassage(tempPassageArray);
-      }
-    }
-  }, [selectedFromVerse, selectedToVerse]);
 
   // this sets the state of what chapter was selected from
   // the child component to the parent component
@@ -138,7 +144,7 @@ function App() {
   // this function renders two dropdown components of a "From verse"
   // and "To Verse" that the user has selected
   function renderVerseOptionsDropdown(typeOfVerse) {
-    if (user.email !== undefined && selectedBook !== 0 && selectedChapter !== 0) {
+    if (user !== 0 && selectedBook !== 0 && selectedChapter !== 0) {
       if (typeOfVerse === "To Verse") {
         return <StickyTitleDropdown onSelect={handleSelectedToVerse} typeOfInput={"number"} input={[typeOfVerse, bibleArray[selectedChapter].length]} />
       } else if (typeOfVerse === "From Verse") {
@@ -150,10 +156,11 @@ function App() {
   // this function renders the current passage based on the user's selection
   // of Book, Chapter, and two verses, From Verse and To Verse
   function renderCurrentPassage() {
-    if(currentPassage !== 0) {
-      return <div>
-        {selectedBook} {selectedChapter}:{selectedFromVerse === selectedToVerse ? {selectedFromVerse} : {selectedFromVerse}+":"+{selectedToVerse}}
-      </div>
+    if (currentPassage !== 0) {
+      let singleVerseString = "" + selectedFromVerse;
+      let multipleVerseString = selectedFromVerse + "-" + selectedToVerse;
+      return <div>{selectedBook} {selectedChapter}:{selectedFromVerse === selectedToVerse ? singleVerseString : multipleVerseString}
+        <br /> {currentPassage}</div>
     }
   }
 

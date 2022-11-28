@@ -146,9 +146,9 @@ function App() {
   function renderVerseOptionsDropdown(typeOfVerse) {
     if (user !== 0 && selectedBook !== 0 && selectedChapter !== 0) {
       if (typeOfVerse === "To Verse") {
-        return <StickyTitleDropdown onSelect={handleSelectedToVerse} typeOfInput={"number"} input={[typeOfVerse, bibleArray[selectedChapter].length]} />
+        return <StickyTitleDropdown onSelect={handleSelectedToVerse} typeOfInput={"number"} input={[typeOfVerse, bibleArray[selectedChapter - 1].length]} />
       } else if (typeOfVerse === "From Verse") {
-        return <StickyTitleDropdown onSelect={handleSelectedFromVerse} typeOfInput={"number"} input={[typeOfVerse, bibleArray[selectedChapter].length]} />
+        return <StickyTitleDropdown onSelect={handleSelectedFromVerse} typeOfInput={"number"} input={[typeOfVerse, bibleArray[selectedChapter - 1].length]} />
       }
     }
   }

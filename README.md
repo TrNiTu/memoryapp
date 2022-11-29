@@ -1,5 +1,3 @@
-## TO-DO ##
-1. Add dropdown options for the book:
-   1. Read CSV file to find how many chapters are in X book and add new dropdown for how many chapters there are
-   3. Read CSV file to find how verses there are in X chapter in X book, then add new dropdown for how many verses there are
-   4. Read in the verse from the CSV file
+# Memory App #
+#### Memorize your favorite verses in The Word! ####
+This application allows you to have a checklist of memorizing specified verses from the Bible (ESV). Firebase, ReactJS, NodeJS and Bootstrap are all used in development to produce this applicaiton.

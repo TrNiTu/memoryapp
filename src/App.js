@@ -1,13 +1,11 @@
 import "./App.css";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { addNewUser, addNewVerse, getVersesCollection, } from "../src/firebase/firebase";
+import { addNewUser, addNewVerse, getVersesCollection, } from "./components/firebase/firebase";
 import { useEffect, useState, } from "react";
-import { getNumberOfChapters, getNumberOfVerses, readCsv } from "./components/bible/bibleUtil.jsx";
+import { readCsv } from "./components/bible/bibleUtil.jsx";
 
 import StickyTitleDropdown from "./components/dropdown/dropdown";
 import jwt_decode from "jwt-decode";
-
-import Papa from "papaparse";
 
 const BIBLE_BOOKS = ["Book", "Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy",
   "Joshua", "Judges", "Ruth", "1 Samuel", "2 Samuel", "1 Kings", "2 Kings",
@@ -39,8 +37,15 @@ function App() {
   }
 
   // this function handles when the user signs out of their account
-  function handleSignOut(event) {
-    setUser({});
+  // it resets all the selected items: bibleArray, book, chapter, fromVerse, toVerse, and currentPassage
+  function handleSignOut() {
+    setUser(0);
+    setBibleArray(0);
+    setSelectedBook(0);
+    setSelectedChapter(0);
+    setSelectedFromVerse(0);
+    setSelectedToVerse(0);
+    setCurrentPassage(0);
     document.getElementById("signInDiv").hidden = false;
   }
 
@@ -164,6 +169,14 @@ function App() {
     }
   }
 
+  // once the verses have been chosen, the app should render a buton for the user to submit the passage to their account
+  function renderSubmitVerseButton() {
+    if(currentPassage !== 0 && user !== 0) {
+      console.log("hello");
+      return <button onClick={() => addNewVerse(user.email, selectedBook, selectedChapter, false, currentPassage, selectedFromVerse, selectedToVerse, 0)}>Submit</button>
+    }
+  }
+
   return (
     <div className="App">
       <div id="signInDiv"></div>
@@ -184,6 +197,7 @@ function App() {
       {renderVerseOptionsDropdown("From Verse")}
       {renderVerseOptionsDropdown("To Verse")}
       {renderCurrentPassage()}
+      {renderSubmitVerseButton()}
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import "../App";
+import "../../App";
 import { initializeApp } from "firebase/app";
 import { addDoc, collection, doc, getDoc, getDocs, getFirestore, setDoc, } from "firebase/firestore";
 
@@ -42,6 +42,11 @@ export async function addNewUser(givenName, userEmail) {
 // this function adds a new verse to the user's "verses" collection
 // the id for this new verse should be "[book][fromVerse][toVerse]"
 export async function addNewVerse(userEmail, book, chapter, checkedOff, scripture, fromVerse, toVerse, timeUntilReview) {
+    if (chapter === 0 || fromVerse === 0 || toVerse === 0) {
+        console.log("Invalid inputs: ", chapter, fromVerse, toVerse);
+        return;
+    }
+
     try {
         // let docRef = doc(db, "users", userEmail);
         let pathRef = "users/" + userEmail + "/verses";
@@ -54,8 +59,13 @@ export async function addNewVerse(userEmail, book, chapter, checkedOff, scriptur
         // tests if the verse exists, if it does, prompt the user
         if (docSnap.exists()) {
             console.log("Verse with ID " + docId + " already exists: ", docSnap.data());
+            if (fromVerse === toVerse) {
+                alert("You already have this passage (" + book + " " + chapter + ":" + fromVerse + " in your checklist!)");
+            } else {
+                alert("You already have this passage (" + book + " " + chapter + ":" + fromVerse + "-" + toVerse + "in your checklist!)");
+            }
         } else {
-            await setDoc(doc(db,pathRef,docId), {
+            await setDoc(doc(db, pathRef, docId), {
                 book: book,
                 chapter: chapter,
                 checkedOff: checkedOff,

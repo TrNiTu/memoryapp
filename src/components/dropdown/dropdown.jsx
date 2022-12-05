@@ -12,6 +12,9 @@ function StickyTitleDropdown({ input, onSelect, typeOfInput }) {
     // set to true, then we need to reset the title of this dropdown
     useEffect(() => {
         if (input[2] >= 1) {
+            if(input[0] === "To Verse") {
+                setTitle("To Verse");
+            }
             setTitle(input[0]);
         }
     }, [input[2]]);

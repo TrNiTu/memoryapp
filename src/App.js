@@ -26,6 +26,7 @@ function App() {
   const [selectedToVerse, setSelectedToVerse] = useState(0);
   const [currentPassage, setCurrentPassage] = useState(0);
   const [didBookChange, setDidBookChange] = useState(0); // using a counter, to count an update of a book change
+  const [didFromVerseChange, setDidFromVerseChange] = useState(0) // same idea as didBookChange useState
 
   function handleCallbackResponse(response) {
     var userObject = jwt_decode(response.credential);
@@ -63,7 +64,6 @@ function App() {
   // bible array to whatever was selected and also reset the
   // current selected chapter, verses, and passage
   useEffect(() => {
-    let temp = selectedBook;
     if (typeof (selectedBook) === "string") {
       readCsv(updateBibleArray, selectedBook);
       setSelectedChapter(0);
@@ -73,6 +73,13 @@ function App() {
       setDidBookChange((didBookChange + 1));
     }
   }, [selectedBook])
+
+  useEffect(() => {
+    setSelectedToVerse(0);
+    setCurrentPassage(0);
+    setDidFromVerseChange((didFromVerseChange+1));
+    console.log(didFromVerseChange)
+  }, [selectedFromVerse]);
 
   // once the user has selected the verses, it means that they
   // have also selected a chapter and a book, set the current
@@ -166,7 +173,7 @@ function App() {
       if (typeOfVerse === "From Verse") {
         return <StickyTitleDropdown onSelect={handleSelectedFromVerse} typeOfInput={"number"} input={[typeOfVerse, bibleArray[selectedChapter - 1].length, didBookChange, 0]} />
       } else if (typeOfVerse === "To Verse" && selectedFromVerse !== 0) {
-        return <StickyTitleDropdown onSelect={handleSelectedToVerse} typeOfInput={"number"} input={[typeOfVerse, bibleArray[selectedChapter - 1].length, didBookChange, (selectedFromVerse-1)]} />
+        return <StickyTitleDropdown onSelect={handleSelectedToVerse} typeOfInput={"number"} input={[typeOfVerse, bibleArray[selectedChapter - 1].length, didFromVerseChange, (selectedFromVerse-1)]} />
       }
     }
   }

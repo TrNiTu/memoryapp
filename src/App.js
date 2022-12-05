@@ -25,7 +25,7 @@ function App() {
   const [selectedFromVerse, setSelectedFromVerse] = useState(0);
   const [selectedToVerse, setSelectedToVerse] = useState(0);
   const [currentPassage, setCurrentPassage] = useState(0);
-  const [didBookChange, setDidBookChange] = useState(0);
+  const [didBookChange, setDidBookChange] = useState(0); // using a counter, to count an update of a book change
 
   function handleCallbackResponse(response) {
     var userObject = jwt_decode(response.credential);
@@ -70,7 +70,7 @@ function App() {
       setSelectedFromVerse(0);
       setSelectedToVerse(0);
       setCurrentPassage(0);
-      setDidBookChange((didBookChange+1));
+      setDidBookChange((didBookChange + 1));
     }
   }, [selectedBook])
 
@@ -155,7 +155,7 @@ function App() {
     // two cases if the book was changed or not to reset the
     // title of the dropdown to chapter
     if (user.email !== undefined && selectedBook !== 0) {
-      return <StickyTitleDropdown onSelect={handleSelectedChapter} typeOfInput={"number"} input={["Chapter", bibleArray.length, didBookChange]} />
+      return <StickyTitleDropdown onSelect={handleSelectedChapter} typeOfInput={"number"} input={["Chapter", bibleArray.length, didBookChange, 0]} />
     }
   }
 
@@ -163,10 +163,10 @@ function App() {
   // and "To Verse" that the user has selected
   function renderVersesDropdown(typeOfVerse) {
     if (user !== 0 && selectedBook !== 0 && selectedChapter !== 0) {
-      if (typeOfVerse === "To Verse") {
-        return <StickyTitleDropdown onSelect={handleSelectedToVerse} typeOfInput={"number"} input={[typeOfVerse, bibleArray[selectedChapter - 1].length, didBookChange]} />
-      } else if (typeOfVerse === "From Verse") {
-        return <StickyTitleDropdown onSelect={handleSelectedFromVerse} typeOfInput={"number"} input={[typeOfVerse, bibleArray[selectedChapter - 1].length, didBookChange]} />
+      if (typeOfVerse === "From Verse") {
+        return <StickyTitleDropdown onSelect={handleSelectedFromVerse} typeOfInput={"number"} input={[typeOfVerse, bibleArray[selectedChapter - 1].length, didBookChange, 0]} />
+      } else if (typeOfVerse === "To Verse" && selectedFromVerse !== 0) {
+        return <StickyTitleDropdown onSelect={handleSelectedToVerse} typeOfInput={"number"} input={[typeOfVerse, bibleArray[selectedChapter - 1].length, didBookChange, (selectedFromVerse-1)]} />
       }
     }
   }

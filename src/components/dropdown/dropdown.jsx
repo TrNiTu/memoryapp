@@ -8,15 +8,14 @@ import "./dropdown.css"
 function StickyTitleDropdown({ input, onSelect, typeOfInput }) {
     const [title, setTitle] = useState(input[0]);
 
+    // when the book changes (handled in App.js), the value will be
+    // set to true, then we need to reset the title of this dropdown
     useEffect(() => {
-        // when the book changes (handled in App.js), the value will be
-        // set to true, then we need to reset the title of this dropdown
-        if(input[2] >= 1) {
+        if (input[2] >= 1) {
             setTitle(input[0]);
         }
-        console.log(title);
     }, [input[2]]);
-    
+
     let dropDownOptions = [];
     if (typeOfInput === "string") {
         for (let i = 1; i < input.length; i++) {
@@ -33,7 +32,7 @@ function StickyTitleDropdown({ input, onSelect, typeOfInput }) {
             )
         }
     } else if (typeOfInput === "number") {
-        for (let i = 0; i < input[1]; i++) {
+        for (let i = input[3]; i < input[1]; i++) {
             dropDownOptions.push(
                 <Dropdown.Item
                     key={i + 1}
@@ -47,10 +46,6 @@ function StickyTitleDropdown({ input, onSelect, typeOfInput }) {
             )
         }
 
-    }
-
-    if (typeOfInput[2] === true) {
-        setTitle(input[0]);
     }
 
     return (

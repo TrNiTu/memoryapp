@@ -4,7 +4,7 @@ import Papa from "papaparse";
 // args should be Book, Chapter, starting verse, ending verse
 export function readCsv(updateBibleArray, book) {
     const bookToRead = require("./csv/" + book + ".csv");
-    
+
     var parsedData = [];
     var verseCounter = 0;
     var currentChapter = 0;

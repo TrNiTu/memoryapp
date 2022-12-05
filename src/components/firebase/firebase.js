@@ -84,7 +84,7 @@ export async function addNewVerse(userEmail, book, chapter, checkedOff, scriptur
 export async function getVersesCollection(userEmail) {
     let pathRef = "users/" + userEmail + "/verses";
     let querySnapshot = await getDocs(collection(db, pathRef));
-    querySnapshot.forEach((doc) => {
-        console.log(doc.data().scripture);
-    });
+    // querySnapshot.forEach((doc) => {
+    //     console.log(doc.data().scripture);
+    // });
 }

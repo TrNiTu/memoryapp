@@ -25,6 +25,7 @@ function App() {
   const [selectedFromVerse, setSelectedFromVerse] = useState(0);
   const [selectedToVerse, setSelectedToVerse] = useState(0);
   const [currentPassage, setCurrentPassage] = useState(0);
+  const [didBookChange, setDidBookChange] = useState(0);
 
   function handleCallbackResponse(response) {
     var userObject = jwt_decode(response.credential);
@@ -39,13 +40,7 @@ function App() {
   // this function handles when the user signs out of their account
   // it resets all the selected items: bibleArray, book, chapter, fromVerse, toVerse, and currentPassage
   function handleSignOut() {
-    setUser(0);
-    setBibleArray(0);
-    setSelectedBook(0);
-    setSelectedChapter(0);
-    setSelectedFromVerse(0);
-    setSelectedToVerse(0);
-    setCurrentPassage(0);
+    resetSelections();
     document.getElementById("signInDiv").hidden = false;
   }
 
@@ -68,12 +63,14 @@ function App() {
   // bible array to whatever was selected and also reset the
   // current selected chapter, verses, and passage
   useEffect(() => {
+    let temp = selectedBook;
     if (typeof (selectedBook) === "string") {
       readCsv(updateBibleArray, selectedBook);
       setSelectedChapter(0);
       setSelectedFromVerse(0);
       setSelectedToVerse(0);
       setCurrentPassage(0);
+      setDidBookChange((didBookChange+1));
     }
   }, [selectedBook])
 
@@ -100,6 +97,19 @@ function App() {
       }
     }
   }, [selectedFromVerse, selectedToVerse]);
+
+  // this function resets all the current selections made by the user
+  // and this also includes bibleArray
+  function resetSelections() {
+    setBibleArray(0), setSelectedBook(0), setSelectedChapter(0), setSelectedFromVerse(0), setSelectedToVerse(0), setCurrentPassage(0);
+  }
+
+  // this function communicates to the Firestore database and writes a new document in the verses collection under the current user
+  // and after it writes it resets the current selections
+  function handleSubmit() {
+    addNewVerse(user.email, selectedBook, selectedChapter, false, currentPassage, selectedFromVerse, selectedToVerse, 0)
+    resetSelections();
+  }
 
   // this function updates the current bible array
   function updateBibleArray(array) {
@@ -132,7 +142,7 @@ function App() {
   }
 
   // this function renders the bible book name dropdown
-  function renderBookOptionsDropdown() {
+  function renderBooksDropdown() {
     if (user.email !== undefined) {
       return <StickyTitleDropdown onSelect={handleSelectedBook} typeOfInput={"string"} input={BIBLE_BOOKS} />
     }
@@ -140,20 +150,23 @@ function App() {
 
   // this function renders the a dropdown list of chapters after
   // the user has selected a book
-  function renderChapterOptionsDropdown() {
+  function renderChaptersDropdown() {
+
+    // two cases if the book was changed or not to reset the
+    // title of the dropdown to chapter
     if (user.email !== undefined && selectedBook !== 0) {
-      return <StickyTitleDropdown onSelect={handleSelectedChapter} typeOfInput={"number"} input={["Chapter", bibleArray.length]} />
+      return <StickyTitleDropdown onSelect={handleSelectedChapter} typeOfInput={"number"} input={["Chapter", bibleArray.length, didBookChange]} />
     }
   }
 
   // this function renders two dropdown components of a "From verse"
   // and "To Verse" that the user has selected
-  function renderVerseOptionsDropdown(typeOfVerse) {
+  function renderVersesDropdown(typeOfVerse) {
     if (user !== 0 && selectedBook !== 0 && selectedChapter !== 0) {
       if (typeOfVerse === "To Verse") {
-        return <StickyTitleDropdown onSelect={handleSelectedToVerse} typeOfInput={"number"} input={[typeOfVerse, bibleArray[selectedChapter - 1].length]} />
+        return <StickyTitleDropdown onSelect={handleSelectedToVerse} typeOfInput={"number"} input={[typeOfVerse, bibleArray[selectedChapter - 1].length, didBookChange]} />
       } else if (typeOfVerse === "From Verse") {
-        return <StickyTitleDropdown onSelect={handleSelectedFromVerse} typeOfInput={"number"} input={[typeOfVerse, bibleArray[selectedChapter - 1].length]} />
+        return <StickyTitleDropdown onSelect={handleSelectedFromVerse} typeOfInput={"number"} input={[typeOfVerse, bibleArray[selectedChapter - 1].length, didBookChange]} />
       }
     }
   }
@@ -171,9 +184,8 @@ function App() {
 
   // once the verses have been chosen, the app should render a buton for the user to submit the passage to their account
   function renderSubmitVerseButton() {
-    if(currentPassage !== 0 && user !== 0) {
-      console.log("hello");
-      return <button onClick={() => addNewVerse(user.email, selectedBook, selectedChapter, false, currentPassage, selectedFromVerse, selectedToVerse, 0)}>Submit</button>
+    if (currentPassage !== 0 && user !== 0) {
+      return <button onClick={() => handleSubmit()}>Submit</button>
     }
   }
 
@@ -186,16 +198,16 @@ function App() {
       }
 
       {/* after loggin in, this is what shows */}
-      {user &&
+      {user !== 0 &&
         <div>
           <img referrerPolicy="no-referrer" src={user.picture}></img>
           <h3>{user.name}</h3>
         </div>}
 
-      {renderBookOptionsDropdown()}
-      {renderChapterOptionsDropdown()}
-      {renderVerseOptionsDropdown("From Verse")}
-      {renderVerseOptionsDropdown("To Verse")}
+      {renderBooksDropdown()}
+      {renderChaptersDropdown()}
+      {renderVersesDropdown("From Verse")}
+      {renderVersesDropdown("To Verse")}
       {renderCurrentPassage()}
       {renderSubmitVerseButton()}
     </div>

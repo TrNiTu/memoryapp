@@ -7,7 +7,16 @@ import "./dropdown.css"
 // the first element will be the type of dropdown
 function StickyTitleDropdown({ input, onSelect, typeOfInput }) {
     const [title, setTitle] = useState(input[0]);
-    // need to somehow make the clicked element "active"
+
+    useEffect(() => {
+        // when the book changes (handled in App.js), the value will be
+        // set to true, then we need to reset the title of this dropdown
+        if(input[2] >= 1) {
+            setTitle(input[0]);
+        }
+        console.log(title);
+    }, [input[2]]);
+    
     let dropDownOptions = [];
     if (typeOfInput === "string") {
         for (let i = 1; i < input.length; i++) {
@@ -38,6 +47,10 @@ function StickyTitleDropdown({ input, onSelect, typeOfInput }) {
             )
         }
 
+    }
+
+    if (typeOfInput[2] === true) {
+        setTitle(input[0]);
     }
 
     return (

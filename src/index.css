@@ -2,7 +2,8 @@ html, body {
   --primary-color: #141418;
   height: 100%;
   width: 100%;
-
+  overflow: scroll;
+  transition: 0.25s ease-in-out;
   background-color: var(--primary-color) !important;
 }
 

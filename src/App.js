@@ -5,6 +5,7 @@ import { useEffect, useState, } from "react";
 import { readCsv } from "./components/bible/bibleUtil.jsx";
 
 import StickyTitleDropdown from "./components/dropdown/dropdown";
+import SubmitButton from "./components/button/button"
 import jwt_decode from "jwt-decode";
 
 const BIBLE_BOOKS = ["Book", "Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy",
@@ -41,8 +42,8 @@ function App() {
   // this function handles when the user signs out of their account
   // it resets all the selected items: bibleArray, book, chapter, fromVerse, toVerse, and currentPassage
   function handleSignOut() {
+    setUser(0);
     resetSelections();
-    document.getElementById("signInDiv").hidden = false;
   }
 
   // Google's login API
@@ -55,7 +56,7 @@ function App() {
 
     google.accounts.id.renderButton(
       document.getElementById("signInDiv"),
-      { theme: "outline", size: "large" }
+      {size: "medium" }
     );
 
   }, []);
@@ -77,8 +78,7 @@ function App() {
   useEffect(() => {
     setSelectedToVerse(0);
     setCurrentPassage(0);
-    setDidFromVerseChange((didFromVerseChange+1));
-    console.log(didFromVerseChange)
+    setDidFromVerseChange((didFromVerseChange + 1));
   }, [selectedFromVerse]);
 
   // once the user has selected the verses, it means that they
@@ -173,7 +173,7 @@ function App() {
       if (typeOfVerse === "From Verse") {
         return <StickyTitleDropdown onSelect={handleSelectedFromVerse} typeOfInput={"number"} input={[typeOfVerse, bibleArray[selectedChapter - 1].length, didBookChange, 0]} />
       } else if (typeOfVerse === "To Verse" && selectedFromVerse !== 0) {
-        return <StickyTitleDropdown onSelect={handleSelectedToVerse} typeOfInput={"number"} input={[typeOfVerse, bibleArray[selectedChapter - 1].length, didFromVerseChange, (selectedFromVerse-1)]} />
+        return <StickyTitleDropdown onSelect={handleSelectedToVerse} typeOfInput={"number"} input={[typeOfVerse, bibleArray[selectedChapter - 1].length, didFromVerseChange, (selectedFromVerse - 1)]} />
       }
     }
   }
@@ -190,33 +190,42 @@ function App() {
   }
 
   // once the verses have been chosen, the app should render a buton for the user to submit the passage to their account
-  function renderSubmitVerseButton() {
+  function renderSubmitButton() {
     if (currentPassage !== 0 && user !== 0) {
-      return <button onClick={() => handleSubmit()}>Submit</button>
+      return <SubmitButton id="test" title="Submit" onClick={() => handleSubmit()} />
     }
   }
 
   return (
     <div className="App">
-      <div id="signInDiv"></div>
-      {/* if our user object is NOT empty, then that means we have a user. */}
-      {Object.keys(user).length !== 0 &&
-        <button onClick={(e) => handleSignOut(e)}>Sign Out</button>
-      }
+      <div className="container d-flex flex-column align-items-center justify-content-center">
 
-      {/* after loggin in, this is what shows */}
-      {user !== 0 &&
-        <div>
-          <img referrerPolicy="no-referrer" src={user.picture}></img>
-          <h3>{user.name}</h3>
-        </div>}
+        <div id="signInDiv" className="signInDiv">
+          {/* if our user object is NOT empty, then that means we have a user. */}
+          {Object.keys(user).length !== 0 &&
+            <button className="loginButton" onClick={(e) => handleSignOut(e)}>Sign Out</button>
+          }
 
-      {renderBooksDropdown()}
-      {renderChaptersDropdown()}
-      {renderVersesDropdown("From Verse")}
-      {renderVersesDropdown("To Verse")}
-      {renderCurrentPassage()}
-      {renderSubmitVerseButton()}
+          {/* after loggin in, this is what shows */}
+          {user !== 0 &&
+            <div>
+              <img referrerPolicy="no-referrer" src={user.picture}></img>
+              <h3>{user.name}</h3>
+            </div>}
+        </div>
+        <div className="row">
+          <div id="dropdownDiv" className="dropdownDiv">
+            {renderBooksDropdown()}
+            {renderChaptersDropdown()}
+            {renderVersesDropdown("From Verse")}
+            {renderVersesDropdown("To Verse")}
+          </div>
+        </div>
+        <div className="row">
+          {renderCurrentPassage()}
+          {renderSubmitButton()}
+        </div>
+      </div>
     </div>
   );
 }

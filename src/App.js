@@ -20,6 +20,7 @@ const BIBLE_BOOKS = ["Book", "Genesis", "Exodus", "Leviticus", "Numbers", "Deute
   "Jude", "Revelation"];
 function App() {
   const [user, setUser] = useState(0); // probably need to introduce redux for a more global state for this fullstack application.
+  const [userVerses, setUserVerses] = useState(0);
   const [bibleArray, setBibleArray] = useState({}); // this is to store the whole bible in an array
   const [selectedBook, setSelectedBook] = useState(0);
   const [selectedChapter, setSelectedChapter] = useState(0);
@@ -28,6 +29,7 @@ function App() {
   const [currentPassage, setCurrentPassage] = useState(0);
   const [didBookChange, setDidBookChange] = useState(0); // using a counter, to count an update of a book change
   const [didFromVerseChange, setDidFromVerseChange] = useState(0) // same idea as didBookChange useState
+  const [currentPage, setCurrentPage] = useState("SignIn"); // here are the pages: SignIn, LoggedIn, SeeVerses, AddVerse
 
   function handleCallbackResponse(response) {
     var userObject = jwt_decode(response.credential);
@@ -36,7 +38,7 @@ function App() {
 
     addNewUser(userObject.given_name, userObject.email);
     // addNewVerse(userObject.email, "Exodus", 3, false, "And I will give this people favor in the sight of the Egyptians; and when you go, you shall not go empty,", 21, 21, 0);
-    getVersesCollection(userObject.email);
+    // getVersesCollection(userObject.email, setUserVerses);
   }
 
   // this function handles when the user signs out of their account
@@ -56,7 +58,7 @@ function App() {
 
     google.accounts.id.renderButton(
       document.getElementById("signInDiv"),
-      {size: "medium" }
+      { size: "medium" }
     );
 
   }, []);
@@ -75,6 +77,8 @@ function App() {
     }
   }, [selectedBook])
 
+  // if a user selects a fromVerse when it was previously selected
+  // it should change the toVerse dropdown
   useEffect(() => {
     setSelectedToVerse(0);
     setCurrentPassage(0);
@@ -192,8 +196,37 @@ function App() {
   // once the verses have been chosen, the app should render a buton for the user to submit the passage to their account
   function renderSubmitButton() {
     if (currentPassage !== 0 && user !== 0) {
-      return <SubmitButton id="test" title="Submit" onClick={() => handleSubmit()} />
+      return <SubmitButton id="submitVerse" title="Submit" onClick={() => handleSubmit()} />
     }
+  }
+
+  function handleSeeVersesBtn() {
+    if (user === 0) {
+      console.log("User is not logged in!");
+      return;
+    }
+
+    setCurrentPage("SeeVerses");
+    getVersesCollection(user.email)
+      .then(verseCollection => setUserVerses(verseCollection))
+      .catch(error => {
+        console.log("Error getting verse collection: " + error);
+      })
+
+    if (userVerses.length !== undefined) {
+      if (userVerses.length === 0) {
+        alert("You have no verses to see! Try Proverbs 6:9 to start :)");
+      } else {
+        for (let i = 0; i < userVerses.length; i++) {
+          console.log(userVerses[i]);
+        }
+      }
+    }
+
+  }
+
+  function handleAddVerseBtn() {
+    setCurrentPage("AddVerse");
   }
 
   return (
@@ -205,17 +238,14 @@ function App() {
           {Object.keys(user).length !== 0 &&
             <button className="loginButton" onClick={(e) => handleSignOut(e)}>Sign Out</button>
           }
-
-          {/* after loggin in, this is what shows */}
-          {user !== 0 &&
-            <div>
-              <img referrerPolicy="no-referrer" src={user.picture}></img>
-              <h3>{user.name}</h3>
-            </div>}
+        </div>
+        <div id="buttonContainer" className="buttonContainer">
+          {user !== 0 ? <SubmitButton id="seeVersesBtn" title="See Verses" onClick={() => handleSeeVersesBtn()} /> : <p>user not logged in</p>}
+          {user !== 0 ? <SubmitButton id="addVerseBtn" title="Add A Verse" onClick={() => handleAddVerseBtn()} /> : <p>user not logged in</p>}
         </div>
         <div className="row">
           <div id="dropdownDiv" className="dropdownDiv">
-            {renderBooksDropdown()}
+            {currentPage === "AddVerse" ? renderBooksDropdown() : null}
             {renderChaptersDropdown()}
             {renderVersesDropdown("From Verse")}
             {renderVersesDropdown("To Verse")}

@@ -82,9 +82,17 @@ export async function addNewVerse(userEmail, book, chapter, checkedOff, scriptur
 }
 
 export async function getVersesCollection(userEmail) {
+    let verseCollection = new Array();
     let pathRef = "users/" + userEmail + "/verses";
     let querySnapshot = await getDocs(collection(db, pathRef));
-    // querySnapshot.forEach((doc) => {
-    //     console.log(doc.data().scripture);
-    // });
+    querySnapshot.forEach((doc) => {
+        if (doc.data().fromVerse === doc.data().toVerse) {
+            // example: Exodus 3:14
+            verseCollection.push([doc.data().book + " " + doc.data().chapter + ":" + doc.data().fromVerse, doc.data().scripture]);
+        } else {
+            // example: Exodus 3:14-15
+            verseCollection.push([doc.data().book + " " + doc.data().chapter + ":" + doc.data().fromVerse + "-" + doc.data().toVerse, doc.data().scripture]);
+        }
+    });
+    return verseCollection;
 }

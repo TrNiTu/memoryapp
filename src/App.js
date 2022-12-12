@@ -4,6 +4,7 @@ import { addNewUser, addNewVerse, getVersesCollection, } from "./components/fire
 import { useEffect, useState, } from "react";
 import { readCsv } from "./components/bible/bibleUtil.jsx";
 
+import CustomText from "./components/text/text"
 import StickyTitleDropdown from "./components/dropdown/dropdown";
 import SubmitButton from "./components/button/button"
 import jwt_decode from "jwt-decode";
@@ -203,10 +204,18 @@ function App() {
   function handleSeeVersesBtn() {
     if (user === 0) {
       console.log("User is not logged in!");
+
       return;
     }
 
+    // no longer have current verse selections
     setCurrentPage("SeeVerses");
+    setSelectedBook(0);
+    setSelectedChapter(0);
+    setSelectedFromVerse(0);
+    setSelectedToVerse(0);
+    setCurrentPassage(0);
+
     getVersesCollection(user.email)
       .then(verseCollection => setUserVerses(verseCollection))
       .catch(error => {
@@ -218,7 +227,8 @@ function App() {
         alert("You have no verses to see! Try Proverbs 6:9 to start :)");
       } else {
         for (let i = 0; i < userVerses.length; i++) {
-          console.log(userVerses[i]);
+          // console.log(userVerses[i]);
+          // do something here
         }
       }
     }
@@ -227,6 +237,16 @@ function App() {
 
   function handleAddVerseBtn() {
     setCurrentPage("AddVerse");
+  }
+
+  function printUserVerses() {
+    if (userVerses !== 0) {
+      let temp = new Array();
+      userVerses.forEach(e => {
+        temp.push(<p key={e[0]}>{e[0]}</p>);
+      })
+      return temp;
+    }
   }
 
   return (
@@ -239,9 +259,10 @@ function App() {
             <button className="loginButton" onClick={(e) => handleSignOut(e)}>Sign Out</button>
           }
         </div>
-        <div id="buttonContainer" className="buttonContainer">
+        <div id="buttonContainer" className="d-flex flex-column buttonContainer">
           {user !== 0 ? <SubmitButton id="seeVersesBtn" title="See Verses" onClick={() => handleSeeVersesBtn()} /> : <p>user not logged in</p>}
           {user !== 0 ? <SubmitButton id="addVerseBtn" title="Add A Verse" onClick={() => handleAddVerseBtn()} /> : <p>user not logged in</p>}
+          {currentPage === "SeeVerses" && userVerses !== 0 ? printUserVerses() : null}
         </div>
         <div className="row">
           <div id="dropdownDiv" className="dropdownDiv">

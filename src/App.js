@@ -47,6 +47,7 @@ function App() {
   function handleSignOut() {
     setUser(0);
     resetSelections();
+    document.getElementById("signInDiv").hidden = false;
   }
 
   // Google's login API
@@ -59,9 +60,8 @@ function App() {
 
     google.accounts.id.renderButton(
       document.getElementById("signInDiv"),
-      { size: "medium" }
+      { size: "large" }
     );
-
   }, []);
 
   // when the selected book changes, update the currently stored
@@ -255,13 +255,12 @@ function App() {
 
         <div id="signInDiv" className="signInDiv">
           {/* if our user object is NOT empty, then that means we have a user. */}
-          {Object.keys(user).length !== 0 &&
-            <button className="loginButton" onClick={(e) => handleSignOut(e)}>Sign Out</button>
-          }
         </div>
-        <div id="buttonContainer" className="d-flex flex-column buttonContainer">
-          {user !== 0 ? <SubmitButton id="seeVersesBtn" title="See Verses" onClick={() => handleSeeVersesBtn()} /> : <p>user not logged in</p>}
-          {user !== 0 ? <SubmitButton id="addVerseBtn" title="Add A Verse" onClick={() => handleAddVerseBtn()} /> : <p>user not logged in</p>}
+
+        <div id="buttonContainer" className="d-flex justify-content-center align-items-center flex-column buttonContainer">
+          {user !== 0 ? <SubmitButton id="signOutBtn" title="Sign Out" onClick={() => handleSignOut()} /> : null}
+          {user !== 0 ? <SubmitButton id="seeVersesBtn" title="See Verses" onClick={() => handleSeeVersesBtn()} /> : null}
+          {user !== 0 ? <SubmitButton id="addVerseBtn" title="Add A Verse" onClick={() => handleAddVerseBtn()} /> : null}
           {currentPage === "SeeVerses" && userVerses !== 0 ? printUserVerses() : null}
         </div>
         <div className="row">

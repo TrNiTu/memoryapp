@@ -35,6 +35,11 @@
   }
 }
 
+#signOutBtn, #seeVersesBtn, #addVerseBtn {
+  margin: 50px;
+  transform: scale(150%); /* make these smaller on smaller viewports */
+}
+
 .App-header {
   background-color: #282c34;
   min-height: 100vh;
